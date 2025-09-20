@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Event } from '../types';
 import { getUsers, getEvents, getUserActivities } from '../api/mockAPI';
+import { logger } from '../utils/logger';
 
 interface UserActivity {
   id: string;
@@ -11,10 +12,20 @@ interface UserActivity {
   details?: string;
 }
 
+interface LogEntry {
+  id: string;
+  timestamp: Date;
+  userAgent: string;
+  ip?: string;
+  action: string;
+  details: string;
+}
+
 const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [activities, setActivities] = useState<UserActivity[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,6 +42,10 @@ const AdminDashboard: React.FC = () => {
       setUsers(usersData);
       setEvents(eventsData);
       setActivities(activitiesData);
+      
+      // Gerçek logları yükle
+      const realLogs = logger.getLogs();
+      setLogs(realLogs);
     } catch (error) {
       console.error('Veri yükleme hatası:', error);
     } finally {
@@ -123,10 +138,43 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Real User Logs */}
+        <div className="bg-white rounded-lg shadow mb-8">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">Gerçek Kullanıcı Logları</h2>
+            <p className="text-sm text-gray-600">Dışarıdan giriş yapan kullanıcıların aktiviteleri</p>
+          </div>
+          <div className="divide-y divide-gray-200">
+            {logs.length > 0 ? (
+              logs.slice(0, 10).map((log) => (
+                <div key={log.id} className="px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{log.action}</p>
+                      <p className="text-sm text-gray-600">{log.details}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {log.userAgent.split(' ')[0]} - {log.timestamp.toLocaleString('tr-TR')}
+                      </p>
+                    </div>
+                    <span className="text-xs text-gray-400">
+                      {log.timestamp.toLocaleTimeString('tr-TR')}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="px-6 py-8 text-center text-gray-500">
+                <p>Henüz gerçek kullanıcı aktivitesi yok</p>
+                <p className="text-sm mt-1">Kullanıcılar giriş yaptıkça burada görünecek</p>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Recent Activities */}
         <div className="bg-white rounded-lg shadow">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Son Aktiviteler</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Mock Aktiviteler</h2>
           </div>
           <div className="divide-y divide-gray-200">
             {activities.map((activity) => (

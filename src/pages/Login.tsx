@@ -4,6 +4,7 @@ import { Container, Paper, Title, Text, TextInput, PasswordInput, Button, Group,
 import { useForm } from '@mantine/form';
 // import { FaExclamationTriangle, FaUsers } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
+import { logger } from '../utils/logger';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -23,14 +24,23 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (values: typeof form.values) => {
     setError('');
+    
+    // Giriş denemesini logla
+    logger.log('LOGIN_ATTEMPT', `Giriş denemesi: ${values.email}`);
+    
     try {
       const success = await login(values.email, values.password);
       if (success) {
+        // Başarılı girişi logla
+        logger.log('LOGIN_SUCCESS', `Başarılı giriş: ${values.email}`);
         navigate('/');
       } else {
+        // Başarısız girişi logla
+        logger.log('LOGIN_FAILED', `Başarısız giriş: ${values.email}`);
         setError('Email veya şifre hatalı');
       }
     } catch (err) {
+      logger.log('LOGIN_ERROR', `Giriş hatası: ${values.email}`);
       setError('Giriş yapılırken bir hata oluştu');
     }
   };
