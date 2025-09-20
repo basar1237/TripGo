@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Event } from '../types';
-import { getUsers, getEvents, getUserActivities } from '../api/mockAPI';
+import { getUsers, getEvents, getUserActivities } from '../services/firebaseFirestore';
 import { logger } from '../utils/logger';
 
 interface UserActivity {

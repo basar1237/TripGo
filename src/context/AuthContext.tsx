@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthContextType } from '../types';
-import { loginUser, registerUser } from '../api/mockAPI';
+import { loginWithEmail, registerWithEmail, logoutUser, onAuthStateChange } from '../services/firebaseAuth';
+import { logUserActivity } from '../services/firebaseFirestore';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -13,21 +14,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setIsLoading(false);
+    // Firebase auth state listener
+    const unsubscribe = onAuthStateChange((firebaseUser) => {
+      setUser(firebaseUser);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const user = await loginUser(email, password);
+      const user = await loginWithEmail(email, password);
       if (user) {
-        setUser(user);
-        localStorage.setItem('user', JSON.stringify(user));
+        // Firebase'e aktivite logla
+        await logUserActivity(user.id, 'login', `Başarılı giriş: ${email}`, navigator.userAgent);
         return true;
       }
       return false;
@@ -42,10 +44,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const user = await registerUser({ name, email, password });
+      const user = await registerWithEmail(name, email, password);
       if (user) {
-        setUser(user);
-        localStorage.setItem('user', JSON.stringify(user));
+        // Firebase'e aktivite logla
+        await logUserActivity(user.id, 'register', `Yeni kullanıcı kaydı: ${email}`, navigator.userAgent);
         return true;
       }
       return false;
@@ -57,9 +59,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      await logoutUser();
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const value: AuthContextType = {
