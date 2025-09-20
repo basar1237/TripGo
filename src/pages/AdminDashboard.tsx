@@ -7,7 +7,7 @@ interface UserActivity {
   id: string;
   userId: string;
   userName: string;
-  action: 'login' | 'register' | 'create_event' | 'join_event';
+  action: 'login' | 'register' | 'create_event' | 'join_event' | 'view_page';
   timestamp: Date;
   details?: string;
 }
