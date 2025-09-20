@@ -13,7 +13,7 @@ const Home: React.FC = () => {
 
   const categories = [
     { value: '', label: 'Tüm Kategoriler' },
-    { value: 'Seyahat', label: 'Seyahat' },
+    { value: 'Seyahati', label: 'Seyahati' },
     { value: 'Müzik', label: 'Müzik' },
     { value: 'Spor', label: 'Spor' },
     { value: 'Teknoloji', label: 'Teknoloji' },
