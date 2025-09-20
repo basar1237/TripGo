@@ -1,6 +1,6 @@
 // Admin kullanıcıların email listesi
 export const ADMIN_EMAILS = [
-  'basar1237@gmail.com', // Sizin email adresiniz
+  'basaryldrm1237@gmail.com', // Sizin email adresiniz
   'admin@tripgo.com',    // Genel admin email
   // Buraya admin olmasını istediğiniz email adreslerini ekleyebilirsiniz
   // Örnek: 'yeniadmin@example.com'
