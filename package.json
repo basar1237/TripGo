@@ -28,7 +28,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "cross-env PORT=3005 DISABLE_ESLINT_PLUGIN=true react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -57,7 +57,6 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17"
   },
-  "homepage": ".",
   "engines": {
     "node": ">=18.0.0"
   }
