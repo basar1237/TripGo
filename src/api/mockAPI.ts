@@ -1,5 +1,17 @@
 import { User, Event } from '../types';
 
+// Activity tracking
+interface UserActivity {
+  id: string;
+  userId: string;
+  userName: string;
+  action: 'login' | 'register' | 'create_event' | 'join_event';
+  timestamp: Date;
+  details?: string;
+}
+
+const userActivities: UserActivity[] = [];
+
 // Mock data
 const mockUsers: User[] = [
   {
@@ -131,11 +143,36 @@ export const addFriend = async (userId: string, friendId: string): Promise<boole
   return false;
 };
 
+// Activity functions
+export const logUserActivity = async (userId: string, action: UserActivity['action'], details?: string): Promise<void> => {
+  const user = mockUsers.find(u => u.id === userId);
+  if (user) {
+    const activity: UserActivity = {
+      id: Date.now().toString(),
+      userId,
+      userName: user.name,
+      action,
+      timestamp: new Date(),
+      details
+    };
+    userActivities.push(activity);
+  }
+};
+
+export const getUserActivities = async (): Promise<UserActivity[]> => {
+  await new Promise(resolve => setTimeout(resolve, 300));
+  return userActivities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+};
+
 // Authentication functions
 export const loginUser = async (email: string, password: string): Promise<User | null> => {
   await new Promise(resolve => setTimeout(resolve, 500));
   const user = mockUsers.find(u => u.email === email);
   // Mock için şifre kontrolü yapmıyoruz, sadece email kontrol ediyoruz
+  if (user) {
+    // Login aktivitesini kaydet
+    await logUserActivity(user.id, 'login', 'Sistem girişi yapıldı');
+  }
   return user || null;
 };
 
@@ -165,5 +202,9 @@ export const registerUser = async (userData: {
   };
   
   mockUsers.push(newUser);
+  
+  // Register aktivitesini kaydet
+  await logUserActivity(newUser.id, 'register', 'Yeni kullanıcı kaydı');
+  
   return newUser;
 };

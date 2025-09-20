@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import EventCreate from './pages/EventCreate';
 import FriendSearch from './pages/FriendSearch';
+import AdminDashboard from './pages/AdminDashboard';
 import 'dayjs/locale/tr';
 
 // Protected Route component
@@ -91,6 +92,14 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <FriendSearch />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
                 </ProtectedRoute>
               } 
             />
