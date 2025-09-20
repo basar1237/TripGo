@@ -160,6 +160,31 @@ export const searchUsers = async (queryText: string): Promise<User[]> => {
   }
 };
 
+// Kullanıcı güncelle
+export const updateUser = async (userId: string, userData: Partial<User>): Promise<boolean> => {
+  try {
+    await updateDoc(doc(db, 'users', userId), {
+      ...userData,
+      updatedAt: serverTimestamp()
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return false;
+  }
+};
+
+// Kullanıcı sil
+export const deleteUser = async (userId: string): Promise<boolean> => {
+  try {
+    await deleteDoc(doc(db, 'users', userId));
+    return true;
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return false;
+  }
+};
+
 // Arkadaş ekle
 export const addFriend = async (userId: string, friendId: string): Promise<boolean> => {
   try {

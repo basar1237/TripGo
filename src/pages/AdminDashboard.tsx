@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User, Event } from '../types';
-import { getUsers, getEvents, getUserActivities } from '../services/firebaseFirestore';
+import { getUsers, getEvents, getUserActivities, updateUser, deleteUser } from '../services/firebaseFirestore';
 import { logger } from '../utils/logger';
+import { Modal, TextInput, Textarea, Button, Group, Stack, Alert, Badge } from '@mantine/core';
 
 interface UserActivity {
   id: string;
@@ -27,6 +28,18 @@ const AdminDashboard: React.FC = () => {
   const [activities, setActivities] = useState<UserActivity[]>([]);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [userForm, setUserForm] = useState({
+    name: '',
+    email: '',
+    bio: '',
+    location: '',
+    interests: [] as string[],
+    isAdmin: false
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadData();
@@ -50,6 +63,63 @@ const AdminDashboard: React.FC = () => {
       console.error('Veri yükleme hatası:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setUserForm({
+      name: user.name,
+      email: user.email,
+      bio: user.bio || '',
+      location: user.location || '',
+      interests: user.interests || [],
+      isAdmin: user.isAdmin || false
+    });
+    setShowUserModal(true);
+    setError('');
+  };
+
+  const handleSaveUser = async () => {
+    if (!editingUser) return;
+    
+    setSaving(true);
+    setError('');
+    
+    try {
+      const success = await updateUser(editingUser.id, {
+        name: userForm.name,
+        email: userForm.email,
+        bio: userForm.bio,
+        location: userForm.location,
+        interests: userForm.interests,
+        isAdmin: userForm.isAdmin
+      });
+      
+      if (success) {
+        setShowUserModal(false);
+        setEditingUser(null);
+        await loadData(); // Verileri yenile
+      } else {
+        setError('Kullanıcı güncellenirken hata oluştu');
+      }
+    } catch (err) {
+      setError('Kullanıcı güncellenirken hata oluştu');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (window.confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) {
+      try {
+        const success = await deleteUser(userId);
+        if (success) {
+          await loadData(); // Verileri yenile
+        }
+      } catch (err) {
+        console.error('Kullanıcı silinirken hata:', err);
+      }
     }
   };
 
@@ -219,6 +289,12 @@ const AdminDashboard: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Arkadaş Sayısı
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Admin
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    İşlemler
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -245,6 +321,33 @@ const AdminDashboard: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {user.friends?.length || 0}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {user.isAdmin ? (
+                        <Badge color="red" size="sm">Admin</Badge>
+                      ) : (
+                        <Badge color="gray" size="sm">Kullanıcı</Badge>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <Group gap="xs">
+                        <Button
+                          size="xs"
+                          variant="light"
+                          color="blue"
+                          onClick={() => handleEditUser(user)}
+                        >
+                          Düzenle
+                        </Button>
+                        <Button
+                          size="xs"
+                          variant="light"
+                          color="red"
+                          onClick={() => handleDeleteUser(user.id)}
+                        >
+                          Sil
+                        </Button>
+                      </Group>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -252,6 +355,78 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Kullanıcı Düzenleme Modal */}
+      <Modal
+        opened={showUserModal}
+        onClose={() => setShowUserModal(false)}
+        title="Kullanıcı Düzenle"
+        size="md"
+      >
+        <Stack>
+          {error && (
+            <Alert color="red" title="Hata">
+              {error}
+            </Alert>
+          )}
+
+          <TextInput
+            label="Ad Soyad"
+            value={userForm.name}
+            onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+            required
+          />
+
+          <TextInput
+            label="Email"
+            value={userForm.email}
+            onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+            required
+            type="email"
+          />
+
+          <TextInput
+            label="Konum"
+            value={userForm.location}
+            onChange={(e) => setUserForm({ ...userForm, location: e.target.value })}
+          />
+
+          <Textarea
+            label="Biyografi"
+            value={userForm.bio}
+            onChange={(e) => setUserForm({ ...userForm, bio: e.target.value })}
+            minRows={3}
+          />
+
+          <div>
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={userForm.isAdmin}
+                onChange={(e) => setUserForm({ ...userForm, isAdmin: e.target.checked })}
+                className="rounded"
+              />
+              <span className="text-sm font-medium">Admin Yetkisi</span>
+            </label>
+          </div>
+
+          <Group justify="flex-end" mt="md">
+            <Button
+              variant="light"
+              onClick={() => setShowUserModal(false)}
+            >
+              İptal
+            </Button>
+            <Button
+              onClick={handleSaveUser}
+              loading={saving}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Kaydet
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </div>
   );
 };
