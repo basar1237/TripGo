@@ -27,6 +27,38 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return user ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
+// Admin Route component
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <div>Yükleniyor...</div>;
+  }
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (!user.isAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Erişim Reddedildi</h1>
+          <p className="text-gray-600">Bu sayfaya erişim yetkiniz bulunmamaktadır.</p>
+          <button 
+            onClick={() => window.history.back()}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Geri Dön
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  return <>{children}</>;
+};
+
 // Public Route component (redirect to home if logged in)
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -98,9 +130,9 @@ function AppContent() {
             <Route 
               path="/admin" 
               element={
-                <ProtectedRoute>
+                <AdminRoute>
                   <AdminDashboard />
-                </ProtectedRoute>
+                </AdminRoute>
               } 
             />
             <Route path="*" element={<Navigate to="/" replace />} />

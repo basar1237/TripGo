@@ -8,6 +8,7 @@ import {
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 import { User as AppUser } from '../types';
+import { isAdmin } from '../utils/adminConfig';
 
 // Firebase User'ı App User'a çevir
 const convertFirebaseUser = async (firebaseUser: User): Promise<AppUser> => {
@@ -23,7 +24,8 @@ const convertFirebaseUser = async (firebaseUser: User): Promise<AppUser> => {
       bio: userData.bio || '',
       location: userData.location || '',
       interests: userData.interests || [],
-      friends: userData.friends || []
+      friends: userData.friends || [],
+      isAdmin: isAdmin(firebaseUser.email || '')
     };
   } else {
     // Yeni kullanıcı için varsayılan veri oluştur
@@ -35,7 +37,8 @@ const convertFirebaseUser = async (firebaseUser: User): Promise<AppUser> => {
       bio: '',
       location: '',
       interests: [],
-      friends: []
+      friends: [],
+      isAdmin: isAdmin(firebaseUser.email || '')
     };
     
     // Firestore'a kaydet
@@ -69,7 +72,8 @@ export const registerWithEmail = async (name: string, email: string, password: s
       bio: '',
       location: '',
       interests: [],
-      friends: []
+      friends: [],
+      isAdmin: isAdmin(email)
     };
     
     // Firestore'a kaydet

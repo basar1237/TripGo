@@ -7,6 +7,7 @@ export interface User {
   location?: string;
   interests?: string[];
   friends?: string[];
+  isAdmin?: boolean;
 }
 
 export interface Event {

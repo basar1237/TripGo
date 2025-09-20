@@ -52,12 +52,14 @@ const Navbar: React.FC = () => {
               >
                 Arkadaş Ara
               </Link>
-              <Link
-                to="/admin"
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                Admin
-              </Link>
+              {user?.isAdmin && (
+                <Link
+                  to="/admin"
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Admin
+                </Link>
+              )}
             </nav>
           )}
 
