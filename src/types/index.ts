@@ -22,6 +22,25 @@ export interface Event {
   image?: string;
 }
 
+export interface Message {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  timestamp: Date;
+  isRead: boolean;
+  senderName?: string;
+  receiverName?: string;
+}
+
+export interface Chat {
+  id: string;
+  participants: string[];
+  lastMessage?: Message;
+  lastMessageTime?: Date;
+  participantNames?: { [userId: string]: string };
+}
+
 export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;

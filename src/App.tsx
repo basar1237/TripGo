@@ -14,6 +14,7 @@ import Register from './pages/Register';
 import EventCreate from './pages/EventCreate';
 import FriendSearch from './pages/FriendSearch';
 import AdminDashboard from './pages/AdminDashboard';
+import Chat from './pages/Chat';
 import 'dayjs/locale/tr';
 
 // Protected Route component
@@ -133,6 +134,14 @@ function AppContent() {
                 <AdminRoute>
                   <AdminDashboard />
                 </AdminRoute>
+              } 
+            />
+            <Route 
+              path="/chat/:userId" 
+              element={
+                <ProtectedRoute>
+                  <Chat />
+                </ProtectedRoute>
               } 
             />
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -5,9 +5,11 @@ import ProfileCard from '../components/ProfileCard';
 import { User } from '../types';
 import { getUsers, searchUsers, addFriend } from '../services/firebaseFirestore';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const FriendSearch: React.FC = () => {
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -68,8 +70,7 @@ const FriendSearch: React.FC = () => {
   };
 
   const handleMessage = (userId: string) => {
-    console.log('Mesaj gönder:', userId);
-    // TODO: Implement messaging functionality
+    navigate(`/chat/${userId}`);
   };
 
   return (

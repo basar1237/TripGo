@@ -9,10 +9,13 @@ import {
   query,
   orderBy,
   limit,
-  serverTimestamp
+  serverTimestamp,
+  where,
+  onSnapshot,
+  writeBatch
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { User, Event } from '../types';
+import { User, Event, Message, Chat } from '../types';
 
 // Kullanıcı aktiviteleri için interface
 interface UserActivity {
@@ -235,5 +238,200 @@ export const addFriend = async (userId: string, friendId: string): Promise<boole
   } catch (error) {
     console.error('Error adding friend:', error);
     return false;
+  }
+};
+
+// Mesaj gönder
+export const sendMessage = async (
+  senderId: string, 
+  receiverId: string, 
+  content: string
+): Promise<Message | null> => {
+  try {
+    const sender = await getUserById(senderId);
+    const receiver = await getUserById(receiverId);
+    
+    if (!sender || !receiver) {
+      throw new Error('Gönderici veya alıcı bulunamadı');
+    }
+
+    const messageData = {
+      senderId,
+      receiverId,
+      content,
+      timestamp: serverTimestamp(),
+      isRead: false,
+      senderName: sender.name,
+      receiverName: receiver.name
+    };
+
+    const docRef = await addDoc(collection(db, 'messages'), messageData);
+    
+    const message: Message = {
+      id: docRef.id,
+      senderId,
+      receiverId,
+      content,
+      timestamp: new Date(),
+      isRead: false,
+      senderName: sender.name,
+      receiverName: receiver.name
+    };
+
+    // Chat koleksiyonunu güncelle
+    await updateOrCreateChat(senderId, receiverId, message);
+
+    return message;
+  } catch (error) {
+    console.error('Error sending message:', error);
+    return null;
+  }
+};
+
+// Chat oluştur veya güncelle
+const updateOrCreateChat = async (userId1: string, userId2: string, lastMessage: Message) => {
+  try {
+    const chatId = [userId1, userId2].sort().join('_');
+    const chatRef = doc(db, 'chats', chatId);
+    const chatDoc = await getDoc(chatRef);
+
+    const chatData = {
+      participants: [userId1, userId2],
+      lastMessage: {
+        id: lastMessage.id,
+        content: lastMessage.content,
+        senderId: lastMessage.senderId,
+        timestamp: lastMessage.timestamp
+      },
+      lastMessageTime: lastMessage.timestamp,
+      participantNames: {
+        [userId1]: lastMessage.senderName || '',
+        [userId2]: lastMessage.receiverName || ''
+      },
+      updatedAt: serverTimestamp()
+    };
+
+    if (chatDoc.exists()) {
+      await updateDoc(chatRef, chatData);
+    } else {
+      await addDoc(collection(db, 'chats'), {
+        ...chatData,
+        id: chatId
+      });
+    }
+  } catch (error) {
+    console.error('Error updating chat:', error);
+  }
+};
+
+// Kullanıcının chat'lerini getir
+export const getUserChats = async (userId: string): Promise<Chat[]> => {
+  try {
+    const chatsSnapshot = await getDocs(
+      query(
+        collection(db, 'chats'),
+        where('participants', 'array-contains', userId),
+        orderBy('lastMessageTime', 'desc')
+      )
+    );
+
+    return chatsSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        participants: data.participants,
+        lastMessage: data.lastMessage,
+        lastMessageTime: data.lastMessageTime?.toDate() || new Date(),
+        participantNames: data.participantNames
+      };
+    });
+  } catch (error) {
+    console.error('Error getting user chats:', error);
+    return [];
+  }
+};
+
+// İki kullanıcı arasındaki mesajları getir
+export const getMessages = async (userId1: string, userId2: string): Promise<Message[]> => {
+  try {
+    const messagesSnapshot = await getDocs(
+      query(
+        collection(db, 'messages'),
+        where('senderId', 'in', [userId1, userId2]),
+        where('receiverId', 'in', [userId1, userId2]),
+        orderBy('timestamp', 'asc')
+      )
+    );
+
+    return messagesSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        senderId: data.senderId,
+        receiverId: data.receiverId,
+        content: data.content,
+        timestamp: data.timestamp?.toDate() || new Date(),
+        isRead: data.isRead,
+        senderName: data.senderName,
+        receiverName: data.receiverName
+      };
+    });
+  } catch (error) {
+    console.error('Error getting messages:', error);
+    return [];
+  }
+};
+
+// Mesajları gerçek zamanlı dinle
+export const subscribeToMessages = (
+  userId1: string, 
+  userId2: string, 
+  callback: (messages: Message[]) => void
+) => {
+  const q = query(
+    collection(db, 'messages'),
+    where('senderId', 'in', [userId1, userId2]),
+    where('receiverId', 'in', [userId1, userId2]),
+    orderBy('timestamp', 'asc')
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const messages: Message[] = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        senderId: data.senderId,
+        receiverId: data.receiverId,
+        content: data.content,
+        timestamp: data.timestamp?.toDate() || new Date(),
+        isRead: data.isRead,
+        senderName: data.senderName,
+        receiverName: data.receiverName
+      };
+    });
+    callback(messages);
+  });
+};
+
+// Mesajları okundu olarak işaretle
+export const markMessagesAsRead = async (userId1: string, userId2: string): Promise<void> => {
+  try {
+    const messagesSnapshot = await getDocs(
+      query(
+        collection(db, 'messages'),
+        where('senderId', '==', userId2),
+        where('receiverId', '==', userId1),
+        where('isRead', '==', false)
+      )
+    );
+
+    const batch = writeBatch(db);
+    messagesSnapshot.docs.forEach(doc => {
+      batch.update(doc.ref, { isRead: true });
+    });
+
+    await batch.commit();
+  } catch (error) {
+    console.error('Error marking messages as read:', error);
   }
 };
