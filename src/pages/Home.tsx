@@ -31,6 +31,14 @@ const Home: React.FC = () => {
       console.log('Loading events from Firebase...');
       const eventsData = await getEvents();
       console.log('Events loaded:', eventsData);
+      console.log('Events count:', eventsData.length);
+      console.log('Events data structure:', eventsData.map(e => ({
+        id: e.id,
+        title: e.title,
+        date: e.date,
+        dateType: typeof e.date,
+        location: e.location
+      })));
       setEvents(eventsData);
     } catch (error) {
       console.error('Etkinlikler yüklenirken hata:', error);

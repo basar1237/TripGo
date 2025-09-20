@@ -18,8 +18,14 @@ const EventCard: React.FC<EventCardProps> = ({
   onLike, 
   showActions = true 
 }) => {
-  const formatDate = (date: Date) => {
-    return format(new Date(date), 'dd MMMM yyyy, HH:mm', { locale: tr });
+  const formatDate = (date: Date | string) => {
+    try {
+      const dateObj = date instanceof Date ? date : new Date(date);
+      return format(dateObj, 'dd MMMM yyyy, HH:mm', { locale: tr });
+    } catch (error) {
+      console.error('Date formatting error:', error, 'Date:', date);
+      return 'Tarih belirtilmemiş';
+    }
   };
 
   return (

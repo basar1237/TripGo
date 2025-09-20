@@ -60,15 +60,33 @@ export const getEvents = async (): Promise<Event[]> => {
     const eventsSnapshot = await getDocs(collection(db, 'events'));
     const events = eventsSnapshot.docs.map(doc => {
       const data = doc.data();
+      let eventDate: Date;
+      
+      // Tarih dönüşümü - Firebase Timestamp veya Date objesi olabilir
+      if (data.date instanceof Date) {
+        eventDate = data.date;
+      } else if (data.date && typeof data.date.toDate === 'function') {
+        eventDate = data.date.toDate();
+      } else if (data.date && typeof data.date === 'string') {
+        eventDate = new Date(data.date);
+      } else {
+        eventDate = new Date();
+      }
+      
       return {
         id: doc.id,
         ...data,
-        date: data.date instanceof Date ? data.date : data.date.toDate()
+        date: eventDate
       };
     }) as Event[];
     
+    console.log('Raw events from Firebase:', events);
+    
     // Tarihe göre sırala (en yeni önce)
-    return events.sort((a, b) => b.date.getTime() - a.date.getTime());
+    const sortedEvents = events.sort((a, b) => b.date.getTime() - a.date.getTime());
+    console.log('Sorted events:', sortedEvents);
+    
+    return sortedEvents;
   } catch (error) {
     console.error('Error getting events:', error);
     return [];
@@ -78,16 +96,21 @@ export const getEvents = async (): Promise<Event[]> => {
 // Etkinlik oluştur
 export const createEvent = async (event: Omit<Event, 'id'>): Promise<Event> => {
   try {
+    console.log('Creating event with data:', event);
+    
     const docRef = await addDoc(collection(db, 'events'), {
       ...event,
       date: event.date, // Date objesi olarak kaydet
       createdAt: serverTimestamp()
     });
     
-    return {
+    const createdEvent = {
       id: docRef.id,
       ...event
     };
+    
+    console.log('Event created successfully:', createdEvent);
+    return createdEvent;
   } catch (error) {
     console.error('Error creating event:', error);
     throw error;
