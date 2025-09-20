@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Group, Button, Avatar, Menu, Text, UnstyledButton } from '@mantine/core';
-import { IconUser, IconLogout, IconSettings, IconCalendar, IconUsers } from '@tabler/icons-react';
+import { FaUser, FaSignOutAlt, FaCog, FaCalendarAlt, FaUsers } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar: React.FC = () => {
@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <IconUsers className="w-5 h-5 text-white" />
+              <FaUsers className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">GoTrip</span>
           </Link>
@@ -77,10 +77,10 @@ const Navbar: React.FC = () => {
 
                 <Menu.Dropdown>
                   <Menu.Label>Hesabım</Menu.Label>
-                  <Menu.Item leftSection={<IconUser size={14} />}>
+                  <Menu.Item leftSection={<FaUser size={14} />}>
                     Profilim
                   </Menu.Item>
-                  <Menu.Item leftSection={<IconSettings size={14} />}>
+                  <Menu.Item leftSection={<FaCog size={14} />}>
                     Ayarlar
                   </Menu.Item>
 
@@ -88,7 +88,7 @@ const Navbar: React.FC = () => {
 
                   <Menu.Item
                     color="red"
-                    leftSection={<IconLogout size={14} />}
+                    leftSection={<FaSignOutAlt size={14} />}
                     onClick={handleLogout}
                   >
                     Çıkış Yap
