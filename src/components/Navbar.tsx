@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Avatar, Menu, Text, UnstyledButton } from '@mantine/core';
+import { Button, Avatar, Menu, Text, UnstyledButton, Drawer, Stack, Group } from '@mantine/core';
 // import { FaUser, FaSignOutAlt, FaCog, FaUsers } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [mobileMenuOpened, setMobileMenuOpened] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+    setMobileMenuOpened(false);
   };
 
   return (
@@ -61,6 +63,18 @@ const Navbar: React.FC = () => {
                 </Link>
               )}
             </nav>
+          )}
+
+          {/* Mobile Menu Button */}
+          {user && (
+            <Button
+              variant="subtle"
+              size="sm"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpened(true)}
+            >
+              <span className="text-xl">☰</span>
+            </Button>
           )}
 
           {/* User Menu */}
@@ -126,6 +140,109 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu Drawer */}
+      <Drawer
+        opened={mobileMenuOpened}
+        onClose={() => setMobileMenuOpened(false)}
+        title="Menü"
+        size="sm"
+        position="right"
+      >
+        {user && (
+          <Stack gap="md">
+            {/* User Info */}
+            <Group>
+              <Avatar
+                src={user.avatar}
+                alt={user.name}
+                size="lg"
+                radius="xl"
+              />
+              <div>
+                <Text fw={500} size="lg">
+                  {user.name}
+                </Text>
+                <Text size="sm" c="dimmed">
+                  {user.email}
+                </Text>
+              </div>
+            </Group>
+
+            {/* Navigation Links */}
+            <Stack gap="xs">
+              <Button
+                variant="subtle"
+                component={Link}
+                to="/"
+                onClick={() => setMobileMenuOpened(false)}
+                justify="flex-start"
+                leftSection={<span>🏠</span>}
+              >
+                Ana Sayfa
+              </Button>
+              
+              <Button
+                variant="subtle"
+                component={Link}
+                to="/profile"
+                onClick={() => setMobileMenuOpened(false)}
+                justify="flex-start"
+                leftSection={<span>👤</span>}
+              >
+                Profil
+              </Button>
+              
+              <Button
+                variant="subtle"
+                component={Link}
+                to="/create-event"
+                onClick={() => setMobileMenuOpened(false)}
+                justify="flex-start"
+                leftSection={<span>📅</span>}
+              >
+                Etkinlik Oluştur
+              </Button>
+              
+              <Button
+                variant="subtle"
+                component={Link}
+                to="/search"
+                onClick={() => setMobileMenuOpened(false)}
+                justify="flex-start"
+                leftSection={<span>🔍</span>}
+              >
+                Arkadaş Ara
+              </Button>
+              
+              {user?.isAdmin && (
+                <Button
+                  variant="subtle"
+                  component={Link}
+                  to="/admin"
+                  onClick={() => setMobileMenuOpened(false)}
+                  justify="flex-start"
+                  leftSection={<span>⚙️</span>}
+                  color="red"
+                >
+                  Admin Panel
+                </Button>
+              )}
+            </Stack>
+
+            {/* Logout Button */}
+            <Button
+              variant="light"
+              color="red"
+              onClick={handleLogout}
+              leftSection={<span>🚪</span>}
+              mt="md"
+            >
+              Çıkış Yap
+            </Button>
+          </Stack>
+        )}
+      </Drawer>
     </div>
   );
 };
