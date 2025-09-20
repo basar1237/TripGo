@@ -62,7 +62,9 @@ const EventCreate: React.FC = () => {
         category: values.category,
       };
 
+      console.log('Creating event:', newEvent);
       const createdEvent = await createEvent(newEvent);
+      console.log('Event created successfully:', createdEvent);
       
       // Etkinlik oluşturma aktivitesini logla
       await logUserActivity(user.id, 'create_event', `Etkinlik oluşturuldu: ${values.title}`, navigator.userAgent);

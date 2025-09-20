@@ -56,14 +56,18 @@ export const getUserById = async (id: string): Promise<User | null> => {
 // Etkinlikleri getir
 export const getEvents = async (): Promise<Event[]> => {
   try {
-    const eventsSnapshot = await getDocs(
-      query(collection(db, 'events'), orderBy('date', 'desc'))
-    );
-    return eventsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      date: doc.data().date.toDate()
-    })) as Event[];
+    const eventsSnapshot = await getDocs(collection(db, 'events'));
+    const events = eventsSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        date: data.date instanceof Date ? data.date : data.date.toDate()
+      };
+    }) as Event[];
+    
+    // Tarihe göre sırala (en yeni önce)
+    return events.sort((a, b) => b.date.getTime() - a.date.getTime());
   } catch (error) {
     console.error('Error getting events:', error);
     return [];
@@ -75,6 +79,7 @@ export const createEvent = async (event: Omit<Event, 'id'>): Promise<Event> => {
   try {
     const docRef = await addDoc(collection(db, 'events'), {
       ...event,
+      date: event.date, // Date objesi olarak kaydet
       createdAt: serverTimestamp()
     });
     

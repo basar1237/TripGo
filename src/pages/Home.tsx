@@ -28,7 +28,9 @@ const Home: React.FC = () => {
   const loadEvents = async () => {
     setLoading(true);
     try {
+      console.log('Loading events from Firebase...');
       const eventsData = await getEvents();
+      console.log('Events loaded:', eventsData);
       setEvents(eventsData);
     } catch (error) {
       console.error('Etkinlikler yüklenirken hata:', error);
