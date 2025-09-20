@@ -5,7 +5,7 @@ import { DatePickerInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 // import { ⚠️, ✅, 📅 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
-import { createEvent } from '../api/mockAPI';
+import { createEvent, logUserActivity } from '../services/firebaseFirestore';
 
 const EventCreate: React.FC = () => {
   const navigate = useNavigate();
@@ -62,7 +62,11 @@ const EventCreate: React.FC = () => {
         category: values.category,
       };
 
-      await createEvent(newEvent);
+      const createdEvent = await createEvent(newEvent);
+      
+      // Etkinlik oluşturma aktivitesini logla
+      await logUserActivity(user.id, 'create_event', `Etkinlik oluşturuldu: ${values.title}`, navigator.userAgent);
+      
       setSuccess(true);
       
       setTimeout(() => {

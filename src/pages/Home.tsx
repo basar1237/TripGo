@@ -3,7 +3,7 @@ import { Container, Title, Grid, Text, Select, Group, Button, LoadingOverlay } f
 // import { 🔽, 🔄 } from 'react-icons/fa';
 import EventCard from '../components/EventCard';
 import { Event } from '../types';
-import { getEvents } from '../api/mockAPI';
+import { getEvents } from '../services/firebaseFirestore';
 
 const Home: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
