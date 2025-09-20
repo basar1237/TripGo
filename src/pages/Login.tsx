@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Container, Paper, Title, Text, TextInput, PasswordInput, Button, Group, Stack, Alert } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconAlertCircle, IconUsers } from '@tabler/icons-react';
+// import { FaExclamationTriangle, FaUsers } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const Login: React.FC = () => {
@@ -41,7 +41,7 @@ const Login: React.FC = () => {
         <Paper withBorder shadow="md" p={30} mt={30} radius="md" className="bg-white">
           <div className="text-center mb-6">
             <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <IconUsers className="w-8 h-8 text-white" />
+              <span className="text-white text-2xl">👥</span>
             </div>
             <Title order={2} ta="center" mb="md">
               GoTrip'e Hoş Geldiniz
@@ -53,7 +53,7 @@ const Login: React.FC = () => {
 
           {error && (
             <Alert
-              icon={<IconAlertCircle size={16} />}
+              icon={<span>⚠️</span>}
               title="Hata"
               color="red"
               mb="md"

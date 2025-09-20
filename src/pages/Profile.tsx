@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Paper, Title, Text, Grid, Group, Avatar, Badge, Button, Stack, Tabs, LoadingOverlay } from '@mantine/core';
-import { IconUser, IconCalendar, IconSettings, IconMapPin, IconUsers, IconEdit } from '@tabler/icons-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Container, Paper, Title, Text, Grid, Group, Avatar, Badge, Button, Tabs, LoadingOverlay } from '@mantine/core';
+// import { 👤, 📅, ⚙️, 📍, 👤s, ✏️ } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { Event } from '../types';
 import { getEvents } from '../api/mockAPI';
@@ -11,13 +11,9 @@ const Profile: React.FC = () => {
   const [userEvents, setUserEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) {
-      loadUserEvents();
-    }
-  }, [user]);
-
-  const loadUserEvents = async () => {
+  const loadUserEvents = useCallback(async () => {
+    if (!user) return;
+    
     setLoading(true);
     try {
       const events = await getEvents();
@@ -29,7 +25,13 @@ const Profile: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadUserEvents();
+    }
+  }, [user, loadUserEvents]);
 
   if (!user) {
     return (
@@ -60,13 +62,13 @@ const Profile: React.FC = () => {
                   {user.name}
                 </Title>
                 <Group gap="xs" mb="sm">
-                  <IconMapPin size={16} className="text-gray-500" />
+                  <span className="text-lg text-gray-500">📍</span>
                   <Text size="sm" c="dimmed">
                     {user.location || 'Konum belirtilmemiş'}
                   </Text>
                 </Group>
                 <Group gap="xs" mb="sm">
-                  <IconUsers size={16} className="text-gray-500" />
+                  <span className="text-lg text-gray-500">👤</span>
                   <Text size="sm" c="dimmed">
                     {user.friends?.length || 0} arkadaş
                   </Text>
@@ -74,7 +76,7 @@ const Profile: React.FC = () => {
               </div>
               <Button
                 variant="light"
-                leftSection={<IconEdit size={16} />}
+                leftSection={<span className="text-lg">✏️</span>}
                 size="sm"
               >
                 Profili Düzenle
@@ -107,13 +109,13 @@ const Profile: React.FC = () => {
 
       <Tabs defaultValue="events">
         <Tabs.List mb="xl">
-          <Tabs.Tab value="events" leftSection={<IconCalendar size={16} />}>
+          <Tabs.Tab value="events" leftSection={<span className="text-lg">📅</span>}>
             Etkinliklerim ({userEvents.length})
           </Tabs.Tab>
-          <Tabs.Tab value="friends" leftSection={<IconUsers size={16} />}>
+          <Tabs.Tab value="friends" leftSection={<span className="text-lg">👤</span>}>
             Arkadaşlarım ({user.friends?.length || 0})
           </Tabs.Tab>
-          <Tabs.Tab value="settings" leftSection={<IconSettings size={16} />}>
+          <Tabs.Tab value="settings" leftSection={<span className="text-lg">⚙️</span>}>
             Ayarlar
           </Tabs.Tab>
         </Tabs.List>
@@ -123,7 +125,7 @@ const Profile: React.FC = () => {
             <LoadingOverlay visible={loading} />
           ) : userEvents.length === 0 ? (
             <Paper shadow="sm" p="xl" radius="md" withBorder className="text-center">
-              <IconCalendar size={48} className="text-gray-400 mx-auto mb-4" />
+              <span className="text-5xl text-gray-400 mx-auto mb-4 block">📅</span>
               <Title order={3} mb="md" c="dimmed">
                 Henüz etkinlik oluşturmadınız
               </Title>
@@ -154,7 +156,7 @@ const Profile: React.FC = () => {
 
         <Tabs.Panel value="friends">
           <Paper shadow="sm" p="xl" radius="md" withBorder className="text-center">
-            <IconUsers size={48} className="text-gray-400 mx-auto mb-4" />
+            <span className="text-5xl text-gray-400 mx-auto mb-4 block">👤</span>
             <Title order={3} mb="md" c="dimmed">
               Arkadaş listesi yakında gelecek
             </Title>
@@ -166,7 +168,7 @@ const Profile: React.FC = () => {
 
         <Tabs.Panel value="settings">
           <Paper shadow="sm" p="xl" radius="md" withBorder className="text-center">
-            <IconSettings size={48} className="text-gray-400 mx-auto mb-4" />
+            <span className="text-5xl text-gray-400 mx-auto mb-4 block">⚙️</span>
             <Title order={3} mb="md" c="dimmed">
               Ayarlar yakında gelecek
             </Title>

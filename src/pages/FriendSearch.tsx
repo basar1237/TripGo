@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Title, Text, TextInput, Grid, Group, Button, LoadingOverlay, Stack, Paper } from '@mantine/core';
-import { IconSearch, IconRefresh } from '@tabler/icons-react';
+// import { 🔍, 🔄 } from 'react-icons/fa';
 import ProfileCard from '../components/ProfileCard';
 import { User } from '../types';
 import { getUsers, searchUsers } from '../api/mockAPI';
@@ -72,7 +72,7 @@ const FriendSearch: React.FC = () => {
               placeholder="İsim, konum veya ilgi alanı ara..."
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.currentTarget.value)}
-              leftSection={<IconSearch size={16} />}
+              leftSection={<span className="text-lg">🔍</span>}
               size="md"
               className="flex-1"
               onKeyPress={(event) => {
@@ -91,7 +91,7 @@ const FriendSearch: React.FC = () => {
             </Button>
             <Button
               variant="light"
-              leftSection={<IconRefresh size={16} />}
+              leftSection={<span className="text-lg">🔄</span>}
               onClick={loadUsers}
               size="md"
             >

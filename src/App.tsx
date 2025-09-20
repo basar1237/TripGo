@@ -38,7 +38,8 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 function AppContent() {
-  const { user } = useAuth();
+  // eslint-disable-next-line no-empty-pattern
+  const { } = useAuth();
 
   return (
     <AppShell

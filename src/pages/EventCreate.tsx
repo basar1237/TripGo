@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Paper, Title, Text, TextInput, Textarea, Button, Stack, Select, Alert, Grid, Group } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
-import { IconAlertCircle, IconCheck, IconCalendar } from '@tabler/icons-react';
+// import { ⚠️, ✅, 📅 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { createEvent } from '../api/mockAPI';
 
@@ -92,7 +92,7 @@ const EventCreate: React.FC = () => {
       <Container size="md" py="xl">
         <Paper withBorder shadow="md" p={40} radius="md" className="bg-white text-center">
           <div className="w-16 h-16 bg-green-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <IconCheck className="w-8 h-8 text-white" />
+            <span className="text-2xl">✅</span>
           </div>
           <Title order={2} ta="center" mb="md" c="green">
             Etkinlik Oluşturuldu!
@@ -110,7 +110,7 @@ const EventCreate: React.FC = () => {
       <Paper withBorder shadow="md" p={40} radius="md" className="bg-white">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <IconCalendar className="w-8 h-8 text-white" />
+            <span className="text-2xl">📅</span>
           </div>
           <Title order={2} ta="center" mb="md">
             Yeni Etkinlik Oluştur
@@ -122,7 +122,7 @@ const EventCreate: React.FC = () => {
 
         {error && (
           <Alert
-            icon={<IconAlertCircle size={16} />}
+            icon={<span className="text-lg">⚠️</span>}
             title="Hata"
             color="red"
             mb="md"

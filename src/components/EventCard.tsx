@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Text, Group, Avatar, Badge, Button, Image } from '@mantine/core';
-import { IconCalendar, IconMapPin, IconUsers, IconHeart } from '@tabler/icons-react';
+// import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaHeart } from 'react-icons/fa';
 import { Event } from '../types';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
@@ -57,21 +57,21 @@ const EventCard: React.FC<EventCardProps> = ({
       </Text>
 
       <Group gap="xs" mb="md">
-        <IconCalendar size={16} className="text-gray-500" />
+        <span className="text-gray-500">📅</span>
         <Text size="sm" c="dimmed">
           {formatDate(event.date)}
         </Text>
       </Group>
 
       <Group gap="xs" mb="md">
-        <IconMapPin size={16} className="text-gray-500" />
+        <span className="text-gray-500">📍</span>
         <Text size="sm" c="dimmed">
           {event.location}
         </Text>
       </Group>
 
       <Group gap="xs" mb="md">
-        <IconUsers size={16} className="text-gray-500" />
+        <span className="text-gray-500">👥</span>
         <Text size="sm" c="dimmed">
           {event.participants.length} katılımcı
         </Text>
@@ -93,7 +93,7 @@ const EventCard: React.FC<EventCardProps> = ({
               variant="subtle"
               color="red"
               size="sm"
-              leftSection={<IconHeart size={16} />}
+              leftSection={<span>❤️</span>}
               onClick={() => onLike?.(event.id)}
               className="hover:bg-red-50"
             >

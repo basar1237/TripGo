@@ -1,6 +1,6 @@
 import React from 'react';
 import { Group, Text, Anchor } from '@mantine/core';
-import { IconHeart, IconBrandGithub, IconBrandTwitter } from '@tabler/icons-react';
+// import { FaHeart, FaGithub, FaTwitter } from 'react-icons/fa';
 
 const Footer: React.FC = () => {
   return (
@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <IconHeart className="w-5 h-5 text-white" />
+                  <span className="text-white text-lg">❤️</span>
               </div>
               <span className="text-xl font-bold text-gray-900">GoTrip</span>
             </div>
@@ -59,10 +59,10 @@ const Footer: React.FC = () => {
               </Text>
               <Group gap="xs" mt="sm">
                 <Anchor href="#" size="sm" c="dimmed">
-                  <IconBrandTwitter size={16} />
+                    <span>🐦</span>
                 </Anchor>
                 <Anchor href="#" size="sm" c="dimmed">
-                  <IconBrandGithub size={16} />
+                    <span>🐙</span>
                 </Anchor>
               </Group>
             </div>

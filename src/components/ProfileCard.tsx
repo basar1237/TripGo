@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Text, Group, Avatar, Button, Badge, Stack } from '@mantine/core';
-import { IconMapPin, IconUsers, IconMessage, IconUserPlus } from '@tabler/icons-react';
+// import { FaMapMarkerAlt, FaUsers, FaComment, FaUserPlus } from 'react-icons/fa';
 import { User } from '../types';
 
 interface ProfileCardProps {
@@ -43,7 +43,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                   size="xs"
                   variant="light"
                   color="blue"
-                  leftSection={<IconMessage size={12} />}
+                  leftSection={<span>💬</span>}
                   onClick={() => onMessage?.(user.id)}
                 >
                   Mesaj
@@ -52,7 +52,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                   size="xs"
                   variant={isAlreadyFriend ? "filled" : "light"}
                   color={isAlreadyFriend ? "green" : "blue"}
-                  leftSection={<IconUserPlus size={12} />}
+                  leftSection={<span>➕</span>}
                   onClick={() => onAddFriend?.(user.id)}
                 >
                   {isAlreadyFriend ? "Arkadaş" : "Ekle"}
@@ -79,7 +79,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
             {user.name}
           </Text>
           <Group gap="xs" mt="xs">
-            <IconMapPin size={16} className="text-gray-500" />
+            <span className="text-gray-500">📍</span>
             <Text size="sm" c="dimmed">
               {user.location || 'Konum belirtilmemiş'}
             </Text>
@@ -109,7 +109,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
       )}
 
       <Group gap="xs" mb="md">
-        <IconUsers size={16} className="text-gray-500" />
+        <span className="text-gray-500">👥</span>
         <Text size="sm" c="dimmed">
           {user.friends?.length || 0} arkadaş
         </Text>
@@ -121,7 +121,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
             variant="light"
             color="blue"
             size="sm"
-            leftSection={<IconMessage size={16} />}
+            leftSection={<span>💬</span>}
             onClick={() => onMessage?.(user.id)}
             className="hover:bg-blue-50"
           >
@@ -131,7 +131,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
             variant={isAlreadyFriend ? "filled" : "light"}
             color={isAlreadyFriend ? "green" : "blue"}
             size="sm"
-            leftSection={<IconUserPlus size={16} />}
+            leftSection={<span>➕</span>}
             onClick={() => onAddFriend?.(user.id)}
             className={isAlreadyFriend ? "bg-green-100 hover:bg-green-200" : "hover:bg-blue-50"}
           >

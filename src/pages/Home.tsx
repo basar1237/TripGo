@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Title, Grid, Text, Select, Group, Button, LoadingOverlay } from '@mantine/core';
-import { IconFilter, IconRefresh } from '@tabler/icons-react';
+// import { 🔽, 🔄 } from 'react-icons/fa';
 import EventCard from '../components/EventCard';
 import { Event } from '../types';
 import { getEvents } from '../api/mockAPI';
@@ -25,10 +25,6 @@ const Home: React.FC = () => {
     loadEvents();
   }, []);
 
-  useEffect(() => {
-    filterEvents();
-  }, [events, categoryFilter]);
-
   const loadEvents = async () => {
     setLoading(true);
     try {
@@ -41,7 +37,7 @@ const Home: React.FC = () => {
     }
   };
 
-  const filterEvents = () => {
+  const filterEvents = useCallback(() => {
     let filtered = events;
     
     if (categoryFilter && categoryFilter !== '') {
@@ -52,7 +48,11 @@ const Home: React.FC = () => {
     filtered = filtered.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     
     setFilteredEvents(filtered);
-  };
+  }, [events, categoryFilter]);
+
+  useEffect(() => {
+    filterEvents();
+  }, [filterEvents]);
 
   const handleJoinEvent = (eventId: string) => {
     console.log('Etkinliğe katıl:', eventId);
@@ -85,7 +85,7 @@ const Home: React.FC = () => {
         </div>
         <Button
           variant="light"
-          leftSection={<IconRefresh size={16} />}
+          leftSection={<span className="text-lg">🔄</span>}
           onClick={loadEvents}
         >
           Yenile
@@ -98,7 +98,7 @@ const Home: React.FC = () => {
           data={categories}
           value={categoryFilter}
           onChange={(value) => setCategoryFilter(value)}
-          leftSection={<IconFilter size={16} />}
+          leftSection={<span className="text-lg">🔽</span>}
           className="min-w-48"
         />
       </Group>

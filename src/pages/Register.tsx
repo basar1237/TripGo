@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Container, Paper, Title, Text, TextInput, PasswordInput, Button, Group, Stack, Alert } from '@mantine/core';
+import { Container, Paper, Title, Text, TextInput, PasswordInput, Button, Stack, Alert } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconAlertCircle, IconUsers, IconCheck } from '@tabler/icons-react';
+// import { FaExclamationTriangle, FaUsers, FaCheck } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const Register: React.FC = () => {
@@ -51,7 +51,7 @@ const Register: React.FC = () => {
         <Container size={420}>
           <Paper withBorder shadow="md" p={30} mt={30} radius="md" className="bg-white text-center">
             <div className="w-16 h-16 bg-green-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <IconCheck className="w-8 h-8 text-white" />
+              <span className="text-white text-2xl">✅</span>
             </div>
             <Title order={2} ta="center" mb="md" c="green">
               Kayıt Başarılı!
@@ -71,7 +71,7 @@ const Register: React.FC = () => {
         <Paper withBorder shadow="md" p={30} mt={30} radius="md" className="bg-white">
           <div className="text-center mb-6">
             <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <IconUsers className="w-8 h-8 text-white" />
+              <span className="text-white text-2xl">👥</span>
             </div>
             <Title order={2} ta="center" mb="md">
               GoTrip'e Katılın
@@ -83,7 +83,7 @@ const Register: React.FC = () => {
 
           {error && (
             <Alert
-              icon={<IconAlertCircle size={16} />}
+              icon={<span>⚠️</span>}
               title="Hata"
               color="red"
               mb="md"
