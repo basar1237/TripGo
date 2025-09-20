@@ -15,6 +15,7 @@ import EventCreate from './pages/EventCreate';
 import FriendSearch from './pages/FriendSearch';
 import AdminDashboard from './pages/AdminDashboard';
 import Chat from './pages/Chat';
+import ChatList from './pages/ChatList';
 import 'dayjs/locale/tr';
 
 // Protected Route component
@@ -134,6 +135,14 @@ function AppContent() {
                 <AdminRoute>
                   <AdminDashboard />
                 </AdminRoute>
+              } 
+            />
+            <Route 
+              path="/messages" 
+              element={
+                <ProtectedRoute>
+                  <ChatList />
+                </ProtectedRoute>
               } 
             />
             <Route 

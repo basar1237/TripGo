@@ -1,13 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Avatar, Menu, Text, UnstyledButton, Drawer, Stack, Group } from '@mantine/core';
+import { Button, Avatar, Menu, Text, UnstyledButton, Drawer, Stack, Group, Badge, ActionIcon } from '@mantine/core';
 // import { FaUser, FaSignOutAlt, FaCog, FaUsers } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
+import { getUserChats } from '../services/firebaseFirestore';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpened, setMobileMenuOpened] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Okunmamış mesaj sayısını hesapla
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      if (!user) return;
+      
+      try {
+        const chats = await getUserChats(user.id);
+        // Şimdilik basit bir sayım - gelecekte gerçek okunmamış mesaj sayısı eklenebilir
+        setUnreadCount(chats.length > 0 ? 1 : 0);
+      } catch (error) {
+        console.error('Error loading unread count:', error);
+      }
+    };
+
+    loadUnreadCount();
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -63,6 +82,30 @@ const Navbar: React.FC = () => {
                 </Link>
               )}
             </nav>
+          )}
+
+          {/* Mesaj İkonu */}
+          {user && (
+            <div className="hidden md:block">
+              <ActionIcon
+                variant="subtle"
+                size="lg"
+                onClick={() => navigate('/messages')}
+                className="relative"
+              >
+                💬
+                {unreadCount > 0 && (
+                  <Badge
+                    size="xs"
+                    color="red"
+                    variant="filled"
+                    className="absolute -top-1 -right-1 min-w-[18px] h-[18px] p-0 flex items-center justify-center text-xs"
+                  >
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </Badge>
+                )}
+              </ActionIcon>
+            </div>
           )}
 
           {/* Mobile Menu Button */}
@@ -213,6 +256,22 @@ const Navbar: React.FC = () => {
                 leftSection={<span>🔍</span>}
               >
                 Arkadaş Ara
+              </Button>
+              
+              <Button
+                variant="subtle"
+                component={Link}
+                to="/messages"
+                onClick={() => setMobileMenuOpened(false)}
+                justify="flex-start"
+                leftSection={<span>💬</span>}
+                rightSection={unreadCount > 0 ? (
+                  <Badge size="xs" color="red" variant="filled">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </Badge>
+                ) : null}
+              >
+                Mesajlar
               </Button>
               
               {user?.isAdmin && (
