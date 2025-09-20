@@ -3,13 +3,16 @@ import { Container, Title, Text, TextInput, Grid, Group, Button, LoadingOverlay,
 // import { 🔍, 🔄 } from 'react-icons/fa';
 import ProfileCard from '../components/ProfileCard';
 import { User } from '../types';
-import { getUsers, searchUsers } from '../api/mockAPI';
+import { getUsers, searchUsers, addFriend } from '../services/firebaseFirestore';
+import { useAuth } from '../context/AuthContext';
 
 const FriendSearch: React.FC = () => {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [addingFriend, setAddingFriend] = useState<string | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -44,9 +47,24 @@ const FriendSearch: React.FC = () => {
     }
   };
 
-  const handleAddFriend = (userId: string) => {
-    console.log('Arkadaş ekle:', userId);
-    // TODO: Implement add friend functionality
+  const handleAddFriend = async (userId: string) => {
+    if (!currentUser) return;
+    
+    setAddingFriend(userId);
+    try {
+      const success = await addFriend(currentUser.id, userId);
+      if (success) {
+        // Kullanıcı listesini yenile
+        await loadUsers();
+        console.log('Arkadaş başarıyla eklendi!');
+      } else {
+        console.error('Arkadaş eklenirken hata oluştu');
+      }
+    } catch (error) {
+      console.error('Arkadaş ekleme hatası:', error);
+    } finally {
+      setAddingFriend(null);
+    }
   };
 
   const handleMessage = (userId: string) => {
@@ -124,6 +142,8 @@ const FriendSearch: React.FC = () => {
                     onAddFriend={handleAddFriend}
                     onMessage={handleMessage}
                     showActions={true}
+                    isAddingFriend={addingFriend === user.id}
+                    currentUserId={currentUser?.id}
                   />
                 </Grid.Col>
               ))}

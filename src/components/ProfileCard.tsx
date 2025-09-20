@@ -9,6 +9,8 @@ interface ProfileCardProps {
   onMessage?: (userId: string) => void;
   showActions?: boolean;
   isCompact?: boolean;
+  isAddingFriend?: boolean;
+  currentUserId?: string;
 }
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ 
@@ -16,9 +18,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   onAddFriend, 
   onMessage, 
   showActions = true,
-  isCompact = false 
+  isCompact = false,
+  isAddingFriend = false,
+  currentUserId
 }) => {
-  const isAlreadyFriend = user.friends && user.friends.length > 0;
+  const isAlreadyFriend = user.friends && user.friends.includes(currentUserId || '');
+  const isCurrentUser = user.id === currentUserId;
 
   if (isCompact) {
     return (
@@ -48,15 +53,19 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                 >
                   Mesaj
                 </Button>
-                <Button
-                  size="xs"
-                  variant={isAlreadyFriend ? "filled" : "light"}
-                  color={isAlreadyFriend ? "green" : "blue"}
-                  leftSection={<span>➕</span>}
-                  onClick={() => onAddFriend?.(user.id)}
-                >
-                  {isAlreadyFriend ? "Arkadaş" : "Ekle"}
-                </Button>
+                {!isCurrentUser && (
+                  <Button
+                    size="xs"
+                    variant={isAlreadyFriend ? "filled" : "light"}
+                    color={isAlreadyFriend ? "green" : "blue"}
+                    leftSection={<span>➕</span>}
+                    onClick={() => onAddFriend?.(user.id)}
+                    loading={isAddingFriend}
+                    disabled={isAddingFriend || isAlreadyFriend}
+                  >
+                    {isAlreadyFriend ? "Arkadaş" : "Ekle"}
+                  </Button>
+                )}
               </Group>
             )}
           </div>
@@ -115,7 +124,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
         </Text>
       </Group>
 
-      {showActions && (
+      {showActions && !isCurrentUser && (
         <Group justify="space-between">
           <Button
             variant="light"
@@ -134,10 +143,18 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
             leftSection={<span>➕</span>}
             onClick={() => onAddFriend?.(user.id)}
             className={isAlreadyFriend ? "bg-green-100 hover:bg-green-200" : "hover:bg-blue-50"}
+            loading={isAddingFriend}
+            disabled={isAddingFriend || isAlreadyFriend}
           >
             {isAlreadyFriend ? "Arkadaş" : "Arkadaş Ekle"}
           </Button>
         </Group>
+      )}
+      
+      {isCurrentUser && (
+        <Text size="sm" c="dimmed" ta="center" py="md">
+          Bu sizin profiliniz
+        </Text>
       )}
     </Card>
   );
