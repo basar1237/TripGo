@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { User, Event } from '../types';
 import { getUsers, getEvents, getUserActivities, updateUser, deleteUser } from '../services/firebaseFirestore';
+import { resetUserPassword } from '../services/firebaseAuth';
 import { logger } from '../utils/logger';
-import { Modal, TextInput, Textarea, Button, Group, Stack, Alert, Badge } from '@mantine/core';
+import { Modal, TextInput, Textarea, Button, Group, Stack, Alert, Badge, PasswordInput } from '@mantine/core';
 
 interface UserActivity {
   id: string;
@@ -40,6 +41,9 @@ const AdminDashboard: React.FC = () => {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [passwordAction, setPasswordAction] = useState<'reset' | 'view'>('reset');
 
   useEffect(() => {
     loadData();
@@ -120,6 +124,35 @@ const AdminDashboard: React.FC = () => {
       } catch (err) {
         console.error('Kullanıcı silinirken hata:', err);
       }
+    }
+  };
+
+  const handlePasswordAction = (user: User, action: 'reset' | 'view') => {
+    setSelectedUser(user);
+    setPasswordAction(action);
+    setShowPasswordModal(true);
+    setError('');
+  };
+
+  const handleResetPassword = async () => {
+    if (!selectedUser) return;
+    
+    setSaving(true);
+    setError('');
+    
+    try {
+      const success = await resetUserPassword(selectedUser.email);
+      if (success) {
+        setShowPasswordModal(false);
+        setSelectedUser(null);
+        alert('Şifre sıfırlama emaili gönderildi!');
+      } else {
+        setError('Şifre sıfırlama emaili gönderilemedi');
+      }
+    } catch (err) {
+      setError('Şifre sıfırlama hatası oluştu');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -341,6 +374,14 @@ const AdminDashboard: React.FC = () => {
                         <Button
                           size="xs"
                           variant="light"
+                          color="orange"
+                          onClick={() => handlePasswordAction(user, 'reset')}
+                        >
+                          Şifre Sıfırla
+                        </Button>
+                        <Button
+                          size="xs"
+                          variant="light"
                           color="red"
                           onClick={() => handleDeleteUser(user.id)}
                         >
@@ -425,6 +466,83 @@ const AdminDashboard: React.FC = () => {
               Kaydet
             </Button>
           </Group>
+        </Stack>
+      </Modal>
+
+      {/* Şifre Yönetimi Modal */}
+      <Modal
+        opened={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        title="Şifre Yönetimi"
+        size="md"
+      >
+        <Stack>
+          {error && (
+            <Alert color="red" title="Hata">
+              {error}
+            </Alert>
+          )}
+
+          {passwordAction === 'reset' && selectedUser && (
+            <>
+              <Alert color="blue" title="Şifre Sıfırlama">
+                <p><strong>{selectedUser.name}</strong> kullanıcısının şifresini sıfırlamak istediğinizden emin misiniz?</p>
+                <p className="mt-2 text-sm text-gray-600">
+                  Kullanıcıya şifre sıfırlama emaili gönderilecektir.
+                </p>
+              </Alert>
+
+              <Group justify="flex-end" mt="md">
+                <Button
+                  variant="light"
+                  onClick={() => setShowPasswordModal(false)}
+                >
+                  İptal
+                </Button>
+                <Button
+                  onClick={handleResetPassword}
+                  loading={saving}
+                  color="orange"
+                >
+                  Şifre Sıfırlama Emaili Gönder
+                </Button>
+              </Group>
+            </>
+          )}
+
+          {passwordAction === 'view' && selectedUser && (
+            <>
+              <Alert color="yellow" title="Güvenlik Uyarısı">
+                <p>Firebase Authentication güvenlik nedeniyle şifreleri şifreli olarak saklar.</p>
+                <p className="mt-2 text-sm">
+                  Kullanıcının mevcut şifresini göremeyiz, ancak şifre sıfırlama emaili gönderebiliriz.
+                </p>
+              </Alert>
+
+              <div className="bg-gray-100 p-4 rounded-lg">
+                <h4 className="font-semibold mb-2">Kullanıcı Bilgileri:</h4>
+                <p><strong>Ad:</strong> {selectedUser.name}</p>
+                <p><strong>Email:</strong> {selectedUser.email}</p>
+                <p><strong>Şifre:</strong> ******** (Güvenlik nedeniyle gizli)</p>
+              </div>
+
+              <Group justify="flex-end" mt="md">
+                <Button
+                  variant="light"
+                  onClick={() => setShowPasswordModal(false)}
+                >
+                  Kapat
+                </Button>
+                <Button
+                  onClick={handleResetPassword}
+                  loading={saving}
+                  color="orange"
+                >
+                  Şifre Sıfırlama Emaili Gönder
+                </Button>
+              </Group>
+            </>
+          )}
         </Stack>
       </Modal>
     </div>

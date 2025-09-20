@@ -1,9 +1,10 @@
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
   User,
-  onAuthStateChanged 
+  onAuthStateChanged,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
@@ -111,4 +112,15 @@ export const onAuthStateChange = (callback: (user: AppUser | null) => void) => {
       callback(null);
     }
   });
+};
+
+// Şifre sıfırlama emaili gönder
+export const resetUserPassword = async (email: string): Promise<boolean> => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return true;
+  } catch (error) {
+    console.error('Şifre sıfırlama hatası:', error);
+    return false;
+  }
 };
